@@ -1,0 +1,14 @@
+<form method="POST">
+    {% csrf_token %}
+
+    <label>Select Slot:</label>
+    <select name="slot_id">
+        {% for slot in slots %}
+            <option value="{{ slot.id }}">
+                {{ slot.time }} - Dr. {{ slot.doctor.username }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Book Appointment</button>
+</form>

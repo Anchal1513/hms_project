@@ -1,0 +1,24 @@
+<h2>Doctor Dashboard</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="time" placeholder="Add time slot">
+    <button type="submit">Add</button>
+</form>
+
+<h3>Your Slots:</h3>
+<ul>
+    {% for slot in slots %}
+        <li>{{ slot.time }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Bookings:</h3>
+<ul>
+    {% for b in bookings %}
+        <li>{{ b.patient.username }} booked {{ b.slot.time }}</li>
+    {% endfor %}
+</ul>
+
+<a href="/logout/">Logout</a>
+<a href="/logout/">Logout</a>
