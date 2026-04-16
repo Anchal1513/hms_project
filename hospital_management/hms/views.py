@@ -3,13 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import User, Availability, Booking
-
+from django.core.mail import send_mail
+from django.conf import settings
 
 # LOGIN
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-
 def login_view(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -21,33 +18,29 @@ def login_view(request):
             login(request, user)
 
             if user.role == 'doctor':
-                return redirect('/doctor/')
+                return redirect('doctor_dashboard')
             elif user.role == 'patient':
-                return redirect('/patient/')
+                return redirect('patient_dashboard')
 
-        else:
-            return HttpResponse("Invalid credentials")
+        return HttpResponse("Invalid credentials")
 
     return render(request, 'login.html')
 
 
 # REGISTER
-from django.shortcuts import render, redirect
-from .models import User
-
 def register(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         role = request.POST['role']
+        email = request.POST['email']
 
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            role=role
-        )
+        if User.objects.filter(username=username).exists():
+            return HttpResponse("Username already exists")
 
-        return redirect('/')   # ✅ IMPORTANT FIX
+        User.objects.create_user(username=username, password=password, role=role)
+
+        return redirect('login')
 
     return render(request, 'register.html')
 
@@ -82,19 +75,43 @@ def patient_dashboard(request):
     return render(request, 'patient.html', {'slots': slots})
 
 
-# BOOK SLOT
+# BOOK SLOT__pycache__/
 @login_required
 def book_slot(request, slot_id):
     slot = Availability.objects.get(id=slot_id)
 
-    Booking.objects.create(
+    # prevent double booking (IMPORTANT)
+    if Booking.objects.filter(slot=slot).exists():
+        return HttpResponse("Slot already booked")
+
+    booking = Booking.objects.create(
         patient=request.user,
         doctor=slot.doctor,
         slot=slot
     )
 
-    return redirect('patient_dashboard')
+    # ✅ EMAIL PART (FIXED)
+    if request.user.email:
+        send_mail(
+            subject="Appointment Booking Confirmed",
+            message=f"""
+Hello {request.user.username},
 
+Your appointment is confirmed.
+
+Doctor: {slot.doctor.username}
+Slot: {slot.time}
+
+Thank you for using our hospital system.
+""",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.user.email],
+            fail_silently=False,   # 👈 IMPORTANT for debugging
+        )
+
+        print("EMAIL SENT TO TERMINAL")
+
+    return redirect('patient_dashboard')
 
 # LOGOUT
 def logout_view(request):

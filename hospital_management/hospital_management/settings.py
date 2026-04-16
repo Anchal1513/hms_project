@@ -115,7 +115,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -126,14 +125,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CUSTOM USER MODEL (VERY IMPORTANT)
 AUTH_USER_MODEL = 'hms.User'
-
 
 # LOGIN SETTINGS (IMPORTANT FIX)
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 
-
 # EMAIL (OPTIONAL - only if needed)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = "hospital@gmail.com"
+
+

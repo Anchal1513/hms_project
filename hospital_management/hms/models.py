@@ -22,7 +22,7 @@ class Booking(models.Model):
     doctor = models.ForeignKey(User, related_name='doctor_bookings', on_delete=models.CASCADE)
     slot = models.ForeignKey(Availability, on_delete=models.CASCADE)
 
-    test_field = models.CharField(max_length=100, null=True, blank=True)
+    test_field = models.CharField(max_length=100, default="Test")
 
     def __str__(self):
         return f"{self.patient.username} → {self.doctor.username}"
